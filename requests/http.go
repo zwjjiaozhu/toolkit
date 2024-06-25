@@ -253,7 +253,7 @@ func GetWithParams(url_ string, params url.Values) (respBody []byte, err error) 
 // SSE Server-Sent Events
 func SSE(url_ string, body any, client *http.Client,
 	header, params map[string]string,
-	callback func(text string)) (err error) {
+	callback func(text []byte)) (err error) {
 
 	if params != nil {
 		url_ += ToQueryParams(params)
@@ -286,8 +286,8 @@ func SSE(url_ string, body any, client *http.Client,
 	}()
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
+		line := scanner.Bytes()
+		if len(line) == 0 {
 			//fmt.Println("chat blank err:", line)
 			continue
 		}
