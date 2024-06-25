@@ -251,22 +251,21 @@ func GetWithParams(url_ string, params url.Values) (respBody []byte, err error) 
 }
 
 // SSE Server-Sent Events
-func SSE(url_ string, body any, client *http.Client,
+func SSE(ctx context.Context, url_ string, body any, client *http.Client,
 	header, params map[string]string,
 	callback func(text []byte)) (err error) {
 
 	if params != nil {
 		url_ += ToQueryParams(params)
 	}
-	// todo：实现关闭sse的功能
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx2, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	// 默认走代理吗
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
 		return
 	}
-	req, err := http.NewRequestWithContext(ctx, "POST", url_, bytes.NewBuffer(jsonBytes))
+	req, err := http.NewRequestWithContext(ctx2, "POST", url_, bytes.NewBuffer(jsonBytes))
 	if err != nil {
 		return
 	}
