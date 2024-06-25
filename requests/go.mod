@@ -1,3 +1,3 @@
-module github.com/zwjjiaozhu/toolkit
+module github.com/zwjjiaozhu/toolkit/requests
 
 go 1.20
