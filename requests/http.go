@@ -251,7 +251,7 @@ func GetWithParams(url_ string, params url.Values) (respBody []byte, err error) 
 }
 
 // SSE Server-Sent Events
-func SSE(url_ string, body map[string]any, client *http.Client,
+func SSE(url_ string, body any, client *http.Client,
 	header, params map[string]string,
 	callback func(text string)) (err error) {
 
