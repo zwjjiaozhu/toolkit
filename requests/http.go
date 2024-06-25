@@ -15,7 +15,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -252,17 +251,17 @@ func GetWithParams(url_ string, params url.Values) (respBody []byte, err error) 
 }
 
 // SSE Server-Sent Events
-func SSE(url_ string, body map[string]any, header, params map[string]string,
-	timeout int, callback func(name, text, mode string), keyName, mode string) (err error) {
+func SSE(url_ string, body map[string]any, client *http.Client,
+	header, params map[string]string,
+	callback func(text string)) (err error) {
 
 	if params != nil {
 		url_ += ToQueryParams(params)
 	}
+	// todo：实现关闭sse的功能
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	client := &http.Client{
-		Timeout: time.Duration(timeout) * time.Second,
-	}
+	// 默认走代理吗
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
 		return
@@ -278,10 +277,7 @@ func SSE(url_ string, body map[string]any, header, params map[string]string,
 		return
 	}
 	// 持续读取数据
-	// 就用文新一言做一个例子
-	//wg := &sync.WaitGroup{}
-	//wg.Add(1)
-	log.Println("chat ...")
+	//log.Println("chat ...")
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
@@ -292,10 +288,13 @@ func SSE(url_ string, body map[string]any, header, params map[string]string,
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "" {
+			//fmt.Println("chat blank err:", line)
 			continue
 		}
-		dataStr := strings.TrimSpace(line)
-		callback(keyName, dataStr, mode)
+		//dataStr := strings.TrimSpace(line)
+		//log.Println("chat data:", line, err)
+		callback(line)
+		//fmt.Println(dataStr)
 	}
 	return
 }
